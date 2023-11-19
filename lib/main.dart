@@ -6,7 +6,8 @@ import 'package:news_app/features/daily_news/presentation/bloc/article/remote/re
 import 'package:news_app/features/daily_news/presentation/pages/home/daily_news.dart';
 import 'package:news_app/injection_container.dart';
 
-void main() async {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
   runApp(const MyApp());
 }
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RemoteArticlesBloc>(
-      create: (context) => sl()..add(GetArticles()),
+      create: (context) => sl()..add(const GetArticles()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: theme(),

@@ -23,7 +23,6 @@ class RemoteArticlesBloc extends Bloc<RemoteArticleEvent, RemoteArticleState> {
     }
 
     if (dataState is DataError) {
-      print('lamnb: ${dataState.error!}');
       emit(RemoteArticlesError(dataState.error!));
     }
   }
