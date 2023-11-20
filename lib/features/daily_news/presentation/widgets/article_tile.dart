@@ -1,22 +1,38 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:news_app/features/daily_news/domain/entities/article.dart';
 
 class ArticleTile extends StatelessWidget {
-  final ArticleEntity article;
-  const ArticleTile({Key? key, required this.article}) : super(key: key);
+  final ArticleEntity? article;
+  final bool isRemovable;
+  final void Function(ArticleEntity article)? onArticleRemove;
+  final void Function(ArticleEntity article)? onArticlePressed;
+
+  const ArticleTile({
+    Key? key,
+    this.article,
+    this.isRemovable = false,
+    this.onArticleRemove,
+    this.onArticlePressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      height: MediaQuery.of(context).size.width / 2.2,
-      child: Row(
-        children: [
-          _buildImage(),
-          _buildTitleAndDescription(context),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        height: MediaQuery.of(context).size.width / 2.2,
+        child: Row(
+          children: [
+            _buildImage(),
+            _buildTitleAndDescription(context),
+            _buildRemoveableArea(),
+          ],
+        ),
       ),
     );
   }
@@ -45,7 +61,7 @@ class ArticleTile extends StatelessWidget {
 
   _buildImage() {
     return CachedNetworkImage(
-      imageUrl: article.urlToImage!,
+      imageUrl: article!.urlToImage!,
       imageBuilder: (context, imageProvider) {
         return _layoutImage(
           context,
@@ -77,7 +93,7 @@ class ArticleTile extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              article.title ?? '',
+              article!.title ?? '',
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge,
@@ -85,7 +101,7 @@ class ArticleTile extends StatelessWidget {
             const SizedBox(height: 4),
             Expanded(
               child: Text(
-                article.description ?? '',
+                article!.description ?? '',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -96,7 +112,7 @@ class ArticleTile extends StatelessWidget {
                 const Icon(Icons.timeline_outlined, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  article.publishedAt ?? '',
+                  article!.publishedAt ?? '',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -105,5 +121,34 @@ class ArticleTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _buildRemoveableArea() {
+    if (isRemovable) {
+      return GestureDetector(
+        onTap: _onRemove,
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Icon(
+            Icons.remove_circle_outline,
+            color: Colors.redAccent,
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox();
+  }
+
+  void _onTap() {
+    if (onArticlePressed != null) {
+      onArticlePressed!(article!);
+    }
+  }
+
+  void _onRemove() {
+    if (onArticleRemove != null) {
+      onArticleRemove!(article!);
+    }
   }
 }

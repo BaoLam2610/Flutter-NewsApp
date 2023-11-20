@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app/config/routes/routes.dart';
+import 'package:news_app/features/daily_news/domain/entities/article.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/remote/remote_article_state.dart';
 import 'package:news_app/features/daily_news/presentation/widgets/article_tile.dart';
@@ -10,19 +12,20 @@ class DailyNews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: _buildBody(),
     );
   }
 
-  _buildAppBar() {
+  _buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text(
-        'Daily News',
-        style: TextStyle(
-          color: Colors.black,
-        ),
-      ),
+      title: const Text('Daily News'),
+      actions: [
+        IconButton(
+          onPressed: () => _onOpenSavedArticlesButtonTapped(context),
+          icon: const Icon(Icons.bookmark),
+        )
+      ],
     );
   }
 
@@ -40,7 +43,11 @@ class DailyNews extends StatelessWidget {
             itemCount: state.articles!.length,
             itemBuilder: (context, index) {
               final article = state.articles![index];
-              return ArticleTile(article: article);
+              return ArticleTile(
+                article: article,
+                onArticlePressed: (article) =>
+                    _onArticlePressed(context, article),
+              );
             },
           );
         }
@@ -55,5 +62,13 @@ class DailyNews extends StatelessWidget {
         return const SizedBox();
       },
     );
+  }
+
+  void _onArticlePressed(BuildContext context, ArticleEntity article) {
+    Navigator.pushNamed(context, articleDetailPage, arguments: article);
+  }
+
+  void _onOpenSavedArticlesButtonTapped(BuildContext context) {
+    Navigator.pushNamed(context, savedArticlesPage);
   }
 }
