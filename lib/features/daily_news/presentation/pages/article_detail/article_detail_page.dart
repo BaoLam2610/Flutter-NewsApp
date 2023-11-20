@@ -117,7 +117,6 @@ class ArticleDetailPage extends HookWidget {
 
   void _onFloatingActionButtonPressed(BuildContext context) {
     context.read<LocalArticlesBloc>().add(SaveArticle(article!));
-    // BlocProvider.of<LocalArticlesBloc>(context).add(SaveArticle(_article));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Article saved successfully!'),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:news_app/core/bloc/base_state.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/local_article_bloc.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/local_article_event.dart';
-import 'package:news_app/features/daily_news/presentation/bloc/article/local/local_article_state.dart';
 import 'package:news_app/injection_container.dart';
 
 import '../../../../../config/routes/routes.dart';
@@ -16,7 +16,8 @@ class SavedArticlesPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<LocalArticlesBloc>()..add(const GetSavedArticles()),
+      create: (context) =>
+          sl<LocalArticlesBloc>()..add(const GetSavedArticles()),
       child: Scaffold(
         appBar: _buildAppBar(),
         body: _buildBody(),
@@ -31,16 +32,16 @@ class SavedArticlesPage extends HookWidget {
   }
 
   _buildBody() {
-    return BlocBuilder<LocalArticlesBloc, LocalArticlesState>(
+    return BlocBuilder<LocalArticlesBloc, BlocState>(
       builder: (context, state) {
-        if (state is LocalArticlesLoading) {
+        if (state is Loading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        if (state is LocalArticlesDone) {
-          if (state.articles!.isEmpty) {
+        if (state is Success) {
+          if (state.data!.isEmpty) {
             return Center(
               child: Text(
                 'This is no data',
@@ -49,9 +50,9 @@ class SavedArticlesPage extends HookWidget {
             );
           }
           return ListView.builder(
-            itemCount: state.articles!.length,
+            itemCount: state.data!.length,
             itemBuilder: (context, index) {
-              final article = state.articles![index];
+              final article = state.data![index];
               return ArticleTile(
                 article: article,
                 isRemovable: true,

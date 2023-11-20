@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:news_app/core/bloc/base_bloc.dart';
+import 'package:news_app/core/bloc/base_state.dart';
 import 'package:news_app/features/daily_news/domain/usecases/get_saved_articles.dart';
 import 'package:news_app/features/daily_news/domain/usecases/remove_article.dart';
 import 'package:news_app/features/daily_news/domain/usecases/save_article.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/local_article_event.dart';
-import 'package:news_app/features/daily_news/presentation/bloc/article/local/local_article_state.dart';
 
-class LocalArticlesBloc
-    extends Bloc<LocalArticlesEvent, LocalArticlesState> {
+class LocalArticlesBloc extends BaseBloc<LocalArticlesEvent, BlocState> {
   final GetSavedArticlesUseCase _getSavedArticlesUseCase;
   final SaveArticleUseCase _saveArticleUseCase;
   final RemoveArticleUseCase _removeArticleUseCase;
@@ -15,33 +16,37 @@ class LocalArticlesBloc
     this._getSavedArticlesUseCase,
     this._saveArticleUseCase,
     this._removeArticleUseCase,
-  ) : super(const LocalArticlesLoading()) {
+  ) : super(Loading()) {
     on<GetSavedArticles>(onGetSavedArticles);
     on<SaveArticle>(onSaveArticle);
     on<RemoveArticle>(onRemoveArtcle);
   }
 
-  void onGetSavedArticles(
-      GetSavedArticles event, Emitter<LocalArticlesState> emit) async {
+  Future<void> _getSavedArticles(Emitter<BlocState> emit) async {
     final articles = await _getSavedArticlesUseCase.call();
-    emit(LocalArticlesDone(articles));
+    emit(Success(data: articles));
+  }
+
+  void onGetSavedArticles(
+    GetSavedArticles event,
+    Emitter<BlocState> emit,
+  ) async {
+    await _getSavedArticles(emit);
   }
 
   void onSaveArticle(
     SaveArticle event,
-    Emitter<LocalArticlesState> emit,
+    Emitter<BlocState> emit,
   ) async {
     await _saveArticleUseCase(params: event.article);
-    final articles = await _getSavedArticlesUseCase.call();
-    emit(LocalArticlesDone(articles));
+    await _getSavedArticles(emit);
   }
 
   void onRemoveArtcle(
     RemoveArticle event,
-    Emitter<LocalArticlesState> emit,
+    Emitter<BlocState> emit,
   ) async {
     await _removeArticleUseCase(params: event.article);
-    final articles = await _getSavedArticlesUseCase.call();
-    emit(LocalArticlesDone(articles));
+    await _getSavedArticles(emit);
   }
 }
